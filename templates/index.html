@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Data Exchange System</title>
+    <style>
+        :root {
+            --primary-color: #1e88e5;
+            --secondary-color: #4caf50;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+            --light-text: #ffffff;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-card {
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 10px 0;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .encryption-on {
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            color: white;
+        }
+        
+        .encryption-off {
+            background: linear-gradient(45deg, #f44336, #ff9800);
+            color: white;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .tab.patient { background: linear-gradient(45deg, #4caf50, #8bc34a); color: white; }
+        .tab.doctor { background: linear-gradient(45deg, #2196f3, #21cbf3); color: white; }
+        .tab.lab { background: linear-gradient(45deg, #ff9800, #ff5722); color: white; }
+        .tab.config { background: linear-gradient(45deg, #9c27b0, #673ab7); color: white; }
+        
+        .tab.active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .section {
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            background: var(--light-bg);
+        }
+        
+        .section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        input[type="text"], input[type="file"], textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            width: 100%;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn.patient { background: #4caf50; color: white; }
+        .btn.doctor { background: #2196f3; color: white; }
+        .btn.lab { background: #ff9800; color: white; }
+        .btn.config { background: #9c27b0; color: white; }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: var(--border-radius);
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .file-upload {
+            border: 2px dashed #e0e0e0;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            transition: border-color 0.3s ease;
+            position: relative;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .file-input-hidden {
+            display: none;
+        }
+        
+        .notification {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        
+        .notification.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .admin-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .admin-link a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            transition: background 0.3s ease;
+        }
+        
+        .admin-link a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .file-info {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Medical Data Exchange System</h1>
+            <div class="status-card {{ 'encryption-on' if encryption_enabled else 'encryption-off' }}">
+                🔐 ENCRYPTION: {{ 'ACTIVE' if encryption_enabled else 'INACTIVE' }}
+            </div>
+            <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">
+                {{ 'Homomorphic encryption enabled - data remains secure during processing' if encryption_enabled else 'Encryption disabled - data visible to network observers' }}
+            </p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab patient active" onclick="showTab('patient')">👨‍⚕️ Patient</div>
+            <div class="tab doctor" onclick="showTab('doctor')">🏥 Doctor</div>
+            <div class="tab lab" onclick="showTab('lab')">🔬 Lab</div>
+            <div class="tab config" onclick="showTab('config')">⚙️ Configuration</div>
+        </div>
+
+        <!-- Patient Tab -->
+        <div id="patient" class="tab-content active">
+            <div class="section">
+                <h2>📋 Patient Actions</h2>
+                
+                <div class="card">
+                    <div class="form-group">
+                        <label>📤 Upload Medical Report</label>
+                        <div class="file-upload">
+                            <input type="file" id="patientFile" class="file-input-hidden" accept=".txt,.pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <button class="btn patient" onclick="document.getElementById('patientFile').click()">
+                                📎 Choose File
+                            </button>
+                            <div id="fileInfo" class="file-info">No file selected</div>
+                        </div>
+                        <button class="btn patient" onclick="uploadPatientFile()" style="margin-top: 10px; width: 100%;">
+                            🔐 Encrypt & Upload
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="form-group">
+                        <label>📋 View Diagnosis Result</label>
+                        <input type="text" id="patientFileId" placeholder="Enter your file ID to view result">
+                        <button class="btn patient" onclick="viewPatientResult()">👁️ View Result</button>
+                    </div>
+                </div>
+
+                <div id="patientResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Doctor Tab -->
+        <div id="doctor" class="tab-content">
+            <div class="section">
+                <h2>🏥 Doctor Actions</h2>
+                
+                <div class="grid">
+                    <div class="card">
+                        <div class="form-group">
+                            <label>👁️ View Patient Report</label>
+                            <input type="text" id="doctorFileId" placeholder="Enter file ID">
+                            <button class="btn doctor" onclick="viewDoctorReport()">View Report</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="form-group">
+                            <label>🔬 Send to Lab</label>
+                            <input type="text" id="doctorSendFileId" placeholder="Enter file ID">
+                            <button class="btn doctor" onclick="sendToLab()">Send to Lab</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="form-group">
+                        <label>📋 Return Diagnosis to Patient</label>
+                        <input type="text" id="doctorResultFileId" placeholder="Enter file ID">
+                        <textarea id="doctorDiagnosis" placeholder="Enter your medical diagnosis and recommendations..." rows="4"></textarea>
+                        <button class="btn doctor" onclick="returnResult()">Send Diagnosis</button>
+                    </div>
+                </div>
+
+                <div id="doctorResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Lab Tab -->
+        <div id="lab" class="tab-content">
+            <div class="section">
+                <h2>🔬 Lab Processing</h2>
+                
+                <div class="card">
+                    <div class="form-group">
+                        <label>⚙️ Process Encrypted Data</label>
+                        <input type="text" id="labFileId" placeholder="Enter lab file ID received from doctor">
+                        <button class="btn lab" onclick="processLabData()">Process Data</button>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.9rem;">
+                            Lab performs homomorphic operations on encrypted data without seeing the actual content
+                        </p>
+                    </div>
+                </div>
+
+                <div id="labResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- Configuration Tab -->
+        <div id="config" class="tab-content">
+            <div class="section">
+                <h2>⚙️ System Configuration</h2>
+                
+                <div class="grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ 'ON' if encryption_enabled else 'OFF' }}</div>
+                        <div class="stat-label">Encryption Status</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">✓</div>
+                        <div class="stat-label">TenSEAL Available</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">System Uptime</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 System Information</h3>
+                    <p><strong>Upload Folder:</strong> {{ UPLOAD_FOLDER }}</p>
+                    <p><strong>Results Folder:</strong> {{ RESULTS_FOLDER }}</p>
+                    <p><strong>Logs Folder:</strong> {{ LOGS_FOLDER }}</p>
+                    <p><strong>Max File Size:</strong> 5 MB</p>
+                </div>
+
+                <div class="card">
+                    <h3>ℹ️ Important Notes</h3>
+                    <p>• To toggle encryption, edit <code>config.py</code> and change <code>ENCRYPTION_ENABLED</code></p>
+                    <p>• Restart the application after changing configuration</p>
+                    <p>• When encryption is ON, outsiders see encrypted binary data</p>
+                    <p>• When encryption is OFF, outsiders can read the actual medical data</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-link">
+        <a href="/admin" target="_blank">🔒 Admin/Outsider Access</a>
+    </div>
+
+    <div class="footer">
+        <p>🏥 Secure Medical Data Exchange System | Homomorphic Encryption Demo</p>
+        <p>🔒 Data Security through Advanced Cryptographic Techniques</p>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // File upload handling - keep the file input hidden and update file info
+        document.getElementById('patientFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'No file selected';
+            const fileSize = e.target.files[0] ? (e.target.files[0].size / 1024 / 1024).toFixed(2) + ' MB' : '';
+            document.getElementById('fileInfo').innerHTML = `Selected: <strong>${fileName}</strong> (${fileSize})`;
+        });
+
+        async function uploadPatientFile() {
+            console.log('Upload function called');
+            
+            const fileInput = document.getElementById('patientFile');
+            const file = fileInput.files[0];
+            
+            console.log('File selected:', file);
+            
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+
+            // Show loading message
+            document.getElementById('patientResult').innerHTML = '🔄 Uploading and encrypting file...';
+            
+            // Log the file info
+            console.log('File name:', file.name);
+            console.log('File size:', file.size);
+            console.log('File type:', file.type);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                console.log('Sending request to /patient/upload');
+                
+                const response = await fetch('/patient/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('Response received:', response);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    console.log('Response not OK, status:', response.status);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Result received:', result);
+                
+                // Display the result in the patient result area
+                document.getElementById('patientResult').innerHTML = JSON.stringify(result, null, 2);
+                
+                // If upload was successful, show success message and update the file ID field
+                if (result.file_id) {
+                    // Update the view result field with the new file ID
+                    document.getElementById('patientFileId').value = result.file_id;
+                    
+                    // Show success notification
+                    const notification = document.createElement('div');
+                    notification.className = 'notification success';
+                    notification.innerHTML = `✅ Upload successful! File ID: ${result.file_id}`;
+                    document.getElementById('patientResult').prepend(notification);
+                    
+                    // Auto-scroll to show the notification
+                    document.getElementById('patientResult').scrollIntoView({ behavior: 'smooth' });
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                console.error('Error stack:', error.stack);
+                document.getElementById('patientResult').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function viewPatientResult() {
+            const fileId = document.getElementById('patientFileId').value;
+            if (!fileId) {
+                alert('Please enter a file ID');
+                return;
+            }
+
+            // Show loading message
+            document.getElementById('patientResult').innerHTML = '🔄 Loading result...';
+
+            try {
+                console.log('Sending request to /patient/view-result/' + fileId);
+                const response = await fetch(`/patient/view-result/${fileId}`);
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Result:', result);
+                document.getElementById('patientResult').innerHTML = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error('View result error:', error);
+                document.getElementById('patientResult').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function viewDoctorReport() {
+            const fileId = document.getElementById('doctorFileId').value;
+            if (!fileId) {
+                alert('Please enter a file ID');
+                return;
+            }
+
+            // Show loading message
+            document.getElementById('doctorResult').innerHTML = '🔄 Loading report...';
+
+            try {
+                const response = await fetch(`/doctor/view/${fileId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                document.getElementById('doctorResult').innerHTML = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error('View report error:', error);
+                document.getElementById('doctorResult').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function sendToLab() {
+            const fileId = document.getElementById('doctorSendFileId').value;
+            if (!fileId) {
+                alert('Please enter a file ID');
+                return;
+            }
+
+            // Show loading message
+            document.getElementById('doctorResult').innerHTML = '🔄 Sending to lab...';
+
+            try {
+                const response = await fetch('/doctor/send-to-lab', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ file_id: fileId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                document.getElementById('doctorResult').innerHTML = JSON.stringify(result, null, 2);
+                
+                // If successful, update the lab file ID field
+                if (result.lab_file_id) {
+                    document.getElementById('labFileId').value = result.lab_file_id;
+                }
+            } catch (error) {
+                console.error('Send to lab error:', error);
+                document.getElementById('doctorResult').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function returnResult() {
+            const fileId = document.getElementById('doctorResultFileId').value;
+            const diagnosis = document.getElementById('doctorDiagnosis').value;
+            if (!fileId || !diagnosis) {
+                alert('Please enter both file ID and diagnosis');
+                return;
+            }
+
+            // Show loading message
+            document.getElementById('doctorResult').innerHTML = '🔄 Sending diagnosis...';
+
+            try {
+                const response = await fetch('/doctor/return-result', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ file_id: fileId, diagnosis: diagnosis })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                document.getElementById('doctorResult').innerHTML = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error('Return result error:', error);
+                document.getElementById('doctorResult').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function processLabData() {
+            const fileId = document.getElementById('labFileId').value;
+            if (!fileId) {
+                alert('Please enter a file ID');
+                return;
+            }
+
+            // Show loading message
+            document.getElementById('labResult').innerHTML = '🔄 Processing data...';
+
+            try {
+                const response = await fetch('/lab/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ lab_file_id: fileId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                document.getElementById('labResult').innerHTML = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error('Process data error:', error);
+                document.getElementById('labResult').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

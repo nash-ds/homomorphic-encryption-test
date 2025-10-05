@@ -1,0 +1,42 @@
+Patient Medical Report
+=====================
+
+Patient ID: PAT-2024-001
+Name: John Doe
+Age: 45
+Gender: Male
+Date: 2024-01-15
+
+Medical History:
+- Hypertension (controlled)
+- Allergies: Penicillin
+- Previous surgeries: Appendectomy (2010)
+
+Current Symptoms:
+- Mild chest pain
+- Shortness of breath during exercise
+- Occasional dizziness
+
+Vital Signs:
+- Blood Pressure: 140/90 mmHg
+- Heart Rate: 78 bpm
+- Temperature: 98.6°F
+- Weight: 185 lbs
+
+Test Results:
+- Cholesterol: 220 mg/dL (Borderline High)
+- Blood Sugar: 105 mg/dL (Normal)
+- ECG: Normal sinus rhythm
+
+Prescriptions:
+- Lisinopril 10mg daily
+- Aspirin 81mg daily
+
+Recommendations:
+- Follow up in 3 months
+- Dietary modifications
+- Regular exercise
+- Monitor blood pressure at home
+
+Doctor: Dr. Smith
+Date: 2024-01-15

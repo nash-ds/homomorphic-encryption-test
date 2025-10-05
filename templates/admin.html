@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Security Monitor - Outsider View</title>
+    <style>
+        :root {
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
+            --dark-bg: #1a1a1a;
+            --darker-bg: #0d0d0d;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --border-radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--darker-bg);
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 0, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 0, 0.05) 0%, transparent 20%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: var(--border-radius);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ff00;
+            color: #00ff00;
+        }
+        
+        .security-status {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 10px 0;
+            border: 1px solid #00ff00;
+        }
+        
+        .encrypted-status {
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+        }
+        
+        .unencrypted-status {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff0000;
+        }
+        
+        .panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .panel h2 {
+            color: #00ff00;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            border-radius: var(--border-radius);
+            font-family: 'Courier New', monospace;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: 1px solid #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .traffic-display {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #00ff00;
+            font-size: 0.9rem;
+        }
+        
+        .binary-data {
+            color: #00ffff;
+        }
+        
+        .readable-data {
+            color: #ffff00;
+        }
+        
+        .file-list {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .file-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #00ff00;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-item:hover {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 10px 0;
+            font-weight: bold;
+            border: 1px solid #ff0000;
+        }
+        
+        .alert.warning {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff0000;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .terminal-line {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .terminal-prompt {
+            color: #00ff00;
+            margin-right: 5px;
+        }
+        
+        .terminal-command {
+            color: #ffff00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 NETWORK SECURITY MONITOR</h1>
+            <div class="security-status encrypted-status">
+                🛡️ ENCRYPTION STATUS: {{ 'ACTIVE' if encryption_enabled else 'INACTIVE' }}
+            </div>
+            <p style="color: #666; margin-top: 10px;">
+                Network traffic interception and analysis interface
+            </p>
+        </div>
+
+        <div class="panel">
+            <h2>🔍 TRAFFIC INTERCEPTION</h2>
+            
+            <div class="form-group">
+                <label>FILE ID TO INTERCEPT:</label>
+                <input type="text" id="outsiderFileId" placeholder="Enter file ID to intercept network traffic">
+            </div>
+            
+            <button class="btn" onclick="inspectTraffic()">🔍 INTERCEPT TRAFFIC</button>
+            <button class="btn" onclick="inspectAllTraffic()">📋 LIST ALL FILES</button>
+            
+            <div class="alert warning" style="margin-top: 15px;">
+                ⚠️ WARNING: This interface allows network traffic inspection. 
+                Use responsibly for security testing only.
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>📊 INTERCEPTED TRAFFIC DATA</h2>
+            <div id="outsiderResult" class="traffic-display">
+                // Network traffic data will appear here...
+                // Ready to intercept...
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>📁 AVAILABLE FILES FOR INTERCEPTION</h2>
+            <div id="fileList" class="file-list">
+                // File list will appear here after scanning...
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>💻 TERMINAL OUTPUT</h2>
+            <div class="traffic-display">
+                <div class="terminal-line"><span class="terminal-prompt">admin@network-monitor:~$</span> <span class="terminal-command">sudo network_scan</span></div>
+                <div class="terminal-line">Scanning network traffic...</div>
+                <div class="terminal-line">Found 0 encrypted packets, 0 unencrypted packets</div>
+                <div class="terminal-line"><span class="terminal-prompt">admin@network-monitor:~$</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>🔒 Network Security Monitor v2.0 | Traffic Interception Interface</p>
+        <p>⚠️ For authorized security testing only</p>
+    </div>
+
+    <script>
+        async function inspectTraffic() {
+            const fileId = document.getElementById('outsiderFileId').value;
+            if (!fileId) {
+                alert('Please enter a file ID');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/outsider/inspect/${fileId}`);
+                const result = await response.json();
+                document.getElementById('outsiderResult').innerHTML = JSON.stringify(result, null, 2);
+                
+                // Add to terminal output
+                const terminal = document.querySelector('.traffic-display:last-child');
+                terminal.innerHTML += `\n<div class="terminal-line"><span class="terminal-prompt">admin@network-monitor:~$</span> <span class="terminal-command">intercept_file ${fileId}</span></div>`;
+                terminal.innerHTML += `<div class="terminal-line">Intercepted file ID: ${fileId}</div>`;
+                terminal.innerHTML += `<div class="terminal-line">Data type: ${result.content_type || 'unknown'}</div>`;
+                terminal.innerHTML += `<div class="terminal-line">Size: ${result.size || 0} bytes</div>`;
+                terminal.innerHTML += `<div class="terminal-line">Readable: ${result.is_readable ? 'YES' : 'NO'}</div>`;
+                terminal.innerHTML += `<div class="terminal-line"><span class="terminal-prompt">admin@network-monitor:~$</span></div>`;
+                
+            } catch (error) {
+                document.getElementById('outsiderResult').innerHTML = 'Error: ' + error.message;
+            }
+        }
+
+        async function inspectAllTraffic() {
+            try {
+                const response = await fetch('/outsider/inspect-all');
+                const result = await response.json();
+                document.getElementById('outsiderResult').innerHTML = JSON.stringify(result, null, 2);
+                
+                // Update file list
+                const fileListDiv = document.getElementById('fileList');
+                if (result.files && result.files.length > 0) {
+                    fileListDiv.innerHTML = '';
+                    result.files.forEach(file => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        fileItem.innerHTML = `
+                            <strong>File ID:</strong> ${file.file_id}<br>
+                            <strong>Filename:</strong> ${file.filename}<br>
+                            <strong>Size:</strong> ${file.size} bytes<br>
+                            <strong>Type:</strong> ${file.content_type}<br>
+                            <strong>Readable:</strong> ${file.is_readable ? 'YES' : 'NO'}
+                        `;
+                        fileItem.onclick = () => {
+                            document.getElementById('outsiderFileId').value = file.file_id;
+                        };
+                        fileListDiv.appendChild(fileItem);
+                    });
+                } else {
+                    fileListDiv.innerHTML = '<p>No files found in network traffic.</p>';
+                }
+                
+                // Add to terminal output
+                const terminal = document.querySelector('.traffic-display:last-child');
+                terminal.innerHTML += `\n<div class="terminal-line"><span class="terminal-prompt">admin@network-monitor:~$</span> <span class="terminal-command">scan_network_traffic</span></div>`;
+                terminal.innerHTML += `<div class="terminal-line">Found ${result.total_files || 0} files in network traffic</div>`;
+                terminal.innerHTML += `<div class="terminal-line"><span class="terminal-prompt">admin@network-monitor:~$</span></div>`;
+                
+            } catch (error) {
+                document.getElementById('outsiderResult').innerHTML = 'Error: ' + error.message;
+            }
+        }
+
+        // Auto-refresh file list on page load
+        window.onload = function() {
+            setTimeout(inspectAllTraffic, 1000);
+        };
+    </script>
+</body>
+</html>
